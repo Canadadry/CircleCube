@@ -90,11 +90,18 @@ function Table(xSpace, ySpace, line1, line2)
         end,
         swap = function(t, x, w)
             for i = 0, w - 1 do
-                print(i)
                 local tmp = t.line1.pieces[i + x]
                 t.line1.pieces[i + x] = t.line2.pieces[x + w - i - 1]
                 t.line2.pieces[x + w - i - 1] = tmp
             end
+        end,
+        rotateLeft = function(t)
+            t.line1:rotateLeft()
+            t.line2:rotateLeft()
+        end,
+        rotateRight = function(t)
+            t.line1:rotateRight()
+            t.line2:rotateRight()
         end
     }
 end
@@ -144,9 +151,11 @@ t = Table(
 
 actions = {
     Button("rl1", 0, 39, 50, 50, Colors[1], function() t.line1:rotateLeft() end),
-    Button("rr1", 750, 30, 50, 50, Colors[1], function() t.line1:rotateRight() end),
     Button("rl2", 0, 140, 50, 50, Colors[1], function() t.line2:rotateLeft() end),
+    Button("rl2", 0, 89, 50, 50, Colors[2], function() t:rotateLeft() end),
+    Button("rr1", 750, 30, 50, 50, Colors[1], function() t.line1:rotateRight() end),
     Button("rr2", 750, 140, 50, 50, Colors[1], function() t.line2:rotateRight() end),
+    Button("rl2", 750, 89, 50, 50, Colors[2], function() t:rotateRight() end),
     Button("s1", 205, 80, 50, 50, Colors[9], function() t:swap(1, 3) end),
     Button("s2", 315, 80, 50, 50, Colors[9], function() t:swap(2, 3) end),
     Button("s3", 425, 80, 50, 50, Colors[9], function() t:swap(3, 3) end),
