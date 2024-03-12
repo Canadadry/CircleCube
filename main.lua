@@ -79,17 +79,52 @@ function DrawLine(l, x, y, w, h)
     end
 end
 
+function Button(x, y, w, h, c, action)
+    return {
+        x = x,
+        y = y,
+        w = w,
+        h = h,
+        c = {
+            r = c.r, g = c.g, b = c.b,
+        },
+        action = action,
+        draw = function(b)
+            love.graphics.setColor(b.c.r, b.c.g, b.c.b)
+            love.graphics.rectangle("fill", b.x, b.y, b.w, b.h)
+        end,
+        trigger = function(b, x, y)
+            if x < b.x then return end
+            if y < b.y then return end
+            if x > b.x + b.w then return end
+            if y > b.y + b.h then return end
+            if b.action then
+                b.action()
+            end
+        end,
+    }
+end
+
 function DrawTable(t, x, y)
-    love.graphics.clear(0, 0, 0)
     DrawLine(t.line1, x, y, t.width, t.height)
     y = y + t.height + t.spacing
     DrawLine(t.line2, x, y, t.width, t.height)
 end
 
+slideUp = Button(0, 250, 50, 50, Colors[1], function()
+    slideUp.c.r = 0
+    slideUp.c.g = 0
+    slideUp.c.b = 0
+end)
+
 function love.draw()
     love.graphics.clear(0, 0, 0)
     DrawTable(t, 0, 0)
+    slideUp:draw()
 end
 
-function love.load()
+function love.mousereleased(x, y, button)
+    if button == 1 then
+        slideUp:trigger(x, y)
+    end
 end
