@@ -134,20 +134,43 @@ function Button(name, x, y, w, h, c, action)
     }
 end
 
-t = Table(
-    10,
-    10,
-    {
-        line = Colors[7],
-        pieces = { Colors[1], Colors[2], Colors[3], Colors[4], Colors[5], Colors[6] },
-        border = 10,
-    },
-    {
-        line = Colors[8],
-        pieces = { Colors[1], Colors[2], Colors[3], Colors[4], Colors[5], Colors[6] },
-        border = 10,
-    }
-)
+function Init()
+    t = Table(
+        10,
+        10,
+        {
+            line = Colors[7],
+            pieces = { Colors[1], Colors[2], Colors[3], Colors[4], Colors[5], Colors[6] },
+            border = 10,
+        },
+        {
+            line = Colors[8],
+            pieces = { Colors[1], Colors[2], Colors[3], Colors[4], Colors[5], Colors[6] },
+            border = 10,
+        }
+    )
+end
+
+function Copy(obj)
+    if type(obj) ~= 'table' then return obj end
+    local res = {}
+    for k, v in pairs(obj) do res[Copy(k)] = Copy(v) end
+    return res
+end
+
+function Save()
+    saved = Copy(t)
+end
+
+function Restore()
+    t = Copy(saved)
+end
+
+saved = {}
+t = {}
+
+Init()
+Save()
 
 actions = {
     Button("rl1", 0, 39, 50, 50, Colors[1], function() t.line1:rotateLeft() end),
@@ -160,6 +183,9 @@ actions = {
     Button("s2", 315, 80, 50, 50, Colors[9], function() t:swap(2, 3) end),
     Button("s3", 425, 80, 50, 50, Colors[9], function() t:swap(3, 3) end),
     Button("s4", 535, 80, 50, 50, Colors[9], function() t:swap(4, 3) end),
+    Button("save", 275, 250, 50, 50, Colors[9], function() Save() end),
+    Button("init", 375, 250, 50, 50, Colors[9], function() Init() end),
+    Button("restore", 475, 250, 50, 50, Colors[9], function() Restore() end),
 }
 
 function love.draw()
