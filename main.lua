@@ -7,6 +7,7 @@ Colors = {
     { r = 0, g = 1,   b = 1 },
     { r = 0, g = 0.5, b = 1 },
     { r = 1, g = 0.5, b = 0 },
+    { r = 1, g = 0.5, b = 0.5 },
 }
 
 function Piece(color, border)
@@ -86,15 +87,21 @@ function Table(xSpace, ySpace, line1, line2)
             t.line1:draw(x, y, t.width, t.height)
             y = y + t.height + t.spacing
             t.line2:draw(x, y, t.width, t.height)
-        end
+        end,
         swap = function(t, x, w)
-
+            for i = 0, w - 1 do
+                print(i)
+                local tmp = t.line1.pieces[i + x]
+                t.line1.pieces[i + x] = t.line2.pieces[x + w - i - 1]
+                t.line2.pieces[x + w - i - 1] = tmp
+            end
         end
     }
 end
 
-function Button(x, y, w, h, c, action)
+function Button(name, x, y, w, h, c, action)
     return {
+        name = name,
         x = x,
         y = y,
         w = w,
@@ -113,6 +120,7 @@ function Button(x, y, w, h, c, action)
             if x > b.x + b.w then return end
             if y > b.y + b.h then return end
             if b.action then
+                --print(b.name)
                 b.action()
             end
         end,
@@ -135,10 +143,14 @@ t = Table(
 )
 
 actions = {
-    Button(0, 12, 50, 50, Colors[1], function() t.line1:rotateLeft() end),
-    Button(750, 12, 50, 50, Colors[1], function() t.line1:rotateRight() end),
-    Button(0, 112, 50, 50, Colors[1], function() t.line2:rotateLeft() end),
-    Button(750, 112, 50, 50, Colors[1], function() t.line2:rotateRight() end),
+    Button("rl1", 0, 39, 50, 50, Colors[1], function() t.line1:rotateLeft() end),
+    Button("rr1", 750, 30, 50, 50, Colors[1], function() t.line1:rotateRight() end),
+    Button("rl2", 0, 140, 50, 50, Colors[1], function() t.line2:rotateLeft() end),
+    Button("rr2", 750, 140, 50, 50, Colors[1], function() t.line2:rotateRight() end),
+    Button("s1", 205, 80, 50, 50, Colors[9], function() t:swap(1, 3) end),
+    Button("s2", 315, 80, 50, 50, Colors[9], function() t:swap(2, 3) end),
+    Button("s3", 425, 80, 50, 50, Colors[9], function() t:swap(3, 3) end),
+    Button("s4", 535, 80, 50, 50, Colors[9], function() t:swap(4, 3) end),
 }
 
 function love.draw()
