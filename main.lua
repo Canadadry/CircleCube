@@ -1,3 +1,5 @@
+json = require "json"
+
 Colors = {
     { r = 1, g = 0,   b = 0 },
     { r = 0, g = 1,   b = 0 },
@@ -67,6 +69,17 @@ function Line(y, space, top, colors)
             end
             l.pieces[1] = tmp
         end,
+        export = function(l)
+            local exp = {
+                line = Copy(l.pieces[1].border),
+                pieces = {},
+                border = l.border,
+            }
+            for i, v in ipairs(l.pieces) do
+                exp.pieces[i] = Copy(v.color)
+            end
+            return exp
+        end
     }
     for i, v in ipairs(colors.pieces) do
         l.pieces[i] = Piece(v, colors.line)
@@ -102,7 +115,15 @@ function Table(xSpace, ySpace, line1, line2)
         rotateRight = function(t)
             t.line1:rotateRight()
             t.line2:rotateRight()
-        end
+        end,
+        export = function(t)
+            return {
+                t.line1.spacing,
+                t.spacing,
+                t.line1:export(),
+                t.line2:export(),
+            }
+        end,
     }
 end
 
@@ -120,6 +141,8 @@ function Button(name, x, y, w, h, c, action)
         draw = function(b)
             love.graphics.setColor(b.c.r, b.c.g, b.c.b)
             love.graphics.rectangle("fill", b.x, b.y, b.w, b.h)
+            love.graphics.setColor(0, 0, 0)
+            love.graphics.print(b.name, b.x, b.y)
         end,
         trigger = function(b, x, y)
             if x < b.x then return end
@@ -159,18 +182,23 @@ function Copy(obj)
 end
 
 function Save()
-    saved = Copy(t)
+    local success, message = love.filesystem.write("save.json", json.encode(t:export()))
+    if success then
+        print("created")
+    else
+        print('file not created: ' .. message)
+    end
 end
 
 function Restore()
-    t = Copy(saved)
+    local contents, size = love.filesystem.read("save.json")
+    local table = json.decode(contents)
+    t = Table(table[1], table[2], table[3], table[4])
 end
 
-saved = {}
 t = {}
 
 Init()
-Save()
 
 actions = {
     Button("rl1", 0, 39, 50, 50, Colors[1], function() t.line1:rotateLeft() end),
@@ -202,4 +230,9 @@ function love.mousereleased(x, y, button)
             v:trigger(x, y)
         end
     end
+end
+
+function love.quit()
+    Save()
+    return false
 end
