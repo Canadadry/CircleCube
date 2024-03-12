@@ -30,6 +30,20 @@ function Line(y, space, top, colors)
         spacing = space,
         pieces = {},
         border = colors.border,
+        draw = function(l, x, y, w, h)
+            for i, v in ipairs(l.pieces) do
+                love.graphics.setColor(v.border.r, v.border.g, v.border.b)
+                love.graphics.rectangle("fill", x + (i - 1) * (w + l.spacing), y, w, h)
+                love.graphics.setColor(v.color.r, v.color.g, v.color.b)
+                love.graphics.rectangle(
+                    "fill",
+                    x + (i - 1) * (w + l.spacing) + l.border,
+                    y + l.border,
+                    w - 2 * l.border,
+                    w - 2 * l.border
+                )
+            end
+        end
     }
     for i, v in ipairs(colors.pieces) do
         l.pieces[i] = Piece(v, colors.line)
@@ -46,37 +60,12 @@ function Table(xSpace, ySpace, line1, line2)
         line2 = Line(height + ySpace, xSpace, false, line2),
         width = width,
         height = height,
+        draw = function(t, x, y)
+            t.line1:draw(x, y, t.width, t.height)
+            y = y + t.height + t.spacing
+            t.line2:draw(x, y, t.width, t.height)
+        end
     }
-end
-
-t = Table(
-    10,
-    10,
-    {
-        line = Colors[7],
-        pieces = { Colors[1], Colors[2], Colors[3], Colors[4], Colors[5], Colors[6] },
-        border = 10,
-    },
-    {
-        line = Colors[8],
-        pieces = { Colors[1], Colors[2], Colors[3], Colors[4], Colors[5], Colors[6] },
-        border = 10,
-    }
-)
-
-function DrawLine(l, x, y, w, h)
-    for i, v in ipairs(l.pieces) do
-        love.graphics.setColor(v.border.r, v.border.g, v.border.b)
-        love.graphics.rectangle("fill", x + (i - 1) * (w + l.spacing), y, w, h)
-        love.graphics.setColor(v.color.r, v.color.g, v.color.b)
-        love.graphics.rectangle(
-            "fill",
-            x + (i - 1) * (w + l.spacing) + l.border,
-            y + l.border,
-            w - 2 * l.border,
-            w - 2 * l.border
-        )
-    end
 end
 
 function Button(x, y, w, h, c, action)
@@ -105,11 +94,20 @@ function Button(x, y, w, h, c, action)
     }
 end
 
-function DrawTable(t, x, y)
-    DrawLine(t.line1, x, y, t.width, t.height)
-    y = y + t.height + t.spacing
-    DrawLine(t.line2, x, y, t.width, t.height)
-end
+t = Table(
+    10,
+    10,
+    {
+        line = Colors[7],
+        pieces = { Colors[1], Colors[2], Colors[3], Colors[4], Colors[5], Colors[6] },
+        border = 10,
+    },
+    {
+        line = Colors[8],
+        pieces = { Colors[1], Colors[2], Colors[3], Colors[4], Colors[5], Colors[6] },
+        border = 10,
+    }
+)
 
 slideUp = Button(0, 250, 50, 50, Colors[1], function()
     slideUp.c.r = 0
@@ -119,7 +117,7 @@ end)
 
 function love.draw()
     love.graphics.clear(0, 0, 0)
-    DrawTable(t, 0, 0)
+    t:draw(0, 0)
     slideUp:draw()
 end
 
