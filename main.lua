@@ -43,7 +43,29 @@ function Line(y, space, top, colors)
                     w - 2 * l.border
                 )
             end
-        end
+        end,
+        rotateLeft = function(l)
+            local tmp = l.pieces[1]
+            local last = 1
+            for i, v in ipairs(l.pieces) do
+                if i > 1 then
+                    last = i
+                    l.pieces[i - 1] = l.pieces[i]
+                end
+            end
+            l.pieces[last] = tmp
+        end,
+        rotateRight = function(l)
+            local tmp = l.pieces[1]
+            for i, v in ipairs(l.pieces) do
+                if l.pieces[i + 1] then
+                    local tmp2 = l.pieces[i + 1]
+                    l.pieces[i + 1] = tmp
+                    tmp = tmp2
+                end
+            end
+            l.pieces[1] = tmp
+        end,
     }
     for i, v in ipairs(colors.pieces) do
         l.pieces[i] = Piece(v, colors.line)
@@ -64,6 +86,9 @@ function Table(xSpace, ySpace, line1, line2)
             t.line1:draw(x, y, t.width, t.height)
             y = y + t.height + t.spacing
             t.line2:draw(x, y, t.width, t.height)
+        end
+        swap = function(t, x, w)
+
         end
     }
 end
@@ -109,20 +134,25 @@ t = Table(
     }
 )
 
-slideUp = Button(0, 250, 50, 50, Colors[1], function()
-    slideUp.c.r = 0
-    slideUp.c.g = 0
-    slideUp.c.b = 0
-end)
+actions = {
+    Button(0, 12, 50, 50, Colors[1], function() t.line1:rotateLeft() end),
+    Button(750, 12, 50, 50, Colors[1], function() t.line1:rotateRight() end),
+    Button(0, 112, 50, 50, Colors[1], function() t.line2:rotateLeft() end),
+    Button(750, 112, 50, 50, Colors[1], function() t.line2:rotateRight() end),
+}
 
 function love.draw()
     love.graphics.clear(0, 0, 0)
-    t:draw(0, 0)
-    slideUp:draw()
+    t:draw(70, 0)
+    for i, v in ipairs(actions) do
+        v:draw()
+    end
 end
 
 function love.mousereleased(x, y, button)
     if button == 1 then
-        slideUp:trigger(x, y)
+        for i, v in ipairs(actions) do
+            v:trigger(x, y)
+        end
     end
 end
